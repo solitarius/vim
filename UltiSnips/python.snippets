@@ -1,0 +1,24 @@
+snippet roprop "Read Only Property" b
+@property
+def ${1:name}(self):
+	${2:return self._$1}$0
+endsnippet
+
+
+snippet for "for loop" b
+for ${1:item} in ${2:iterable}:
+	${3:pass}
+endsnippet
+
+
+snippet fix "fixture" b
+@pytest.fixture${1:(scope='module')}
+def ${2:name}():
+	${3:pass}
+endsnippet
+
+
+snippet mdef "method" b
+def ${1:name}(self$0):
+	pass
+endsnippet
