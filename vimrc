@@ -1,5 +1,141 @@
+"-----------------------------------------------------------------------------
+" PLUGINS
+"-----------------------------------------------------------------------------
+
+call plug#begin('~/.vim/plugged')
+
+Plug 'stephpy/vim-yaml' " fix vim bug (yaml syntax lags)
+
+Plug 'Raimondi/delimitMate'
+
+function! DoRemote(arg)
+  UpdateRemotePlugins
+endfunction
+Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
+imap <silent><expr> <c-n> deoplete#mappings#manual_complete()
+let g:deoplete#enable_at_startup = 1
+Plug 'zchee/deoplete-jedi'
+
+Plug 'terryma/vim-multiple-cursors'
+Plug 'szw/vim-ctrlspace'
+let g:ctrlspace_use_tabline = 1
+
+Plug 'rking/ag.vim'
+
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+let g:airline_theme='tomorrow'
+let g:airline_mode_map = {
+  \ '__' : '-',
+  \ 'n' : 'N',
+  \ 'i' : 'I',
+  \ 'R' : 'R',
+  \ 'c' : 'C',
+  \ 'v' : 'V',
+  \ 'V' : 'V',
+  \ '' : 'V',
+  \ 's' : 'S',
+  \ 'S' : 'S',
+  \ '' : 'S',
+  \ }
+
+Plug 'easymotion/vim-easymotion'
+
+Plug 'ctrlpvim/ctrlp.vim'
+nmap <m-p> :CtrlPCurFile<cr>
+
+let g:ctrlp_switch_buffer = 0
+let g:ctrlp_max_height = 30
+set wildignore+=*.pyc
+set wildignore+=*_build/*
+set wildignore+=*/coverage/*
+set wildignore+=*/.git/*
+
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn|__pycache__)$',
+    \ 'file': '\v\.(exe|so|dll|pyc)$',
+\ }
+
+Plug 'scrooloose/nerdtree'
+map <F8> <esc>:NERDTreeToggle<cr>
+map <F18> <esc>:NERDTreeFind<cr>zz
+" Show the bookmarks table on startup
+let NERDTreeShowBookmarks=1
+let NERDTreeIgnore=[ '\.pyc$', '\.swp$' ]
+let NERDTreeQuitOnOpen=1
+
+Plug 'tpope/vim-commentary'
+nmap ,c<space> gcl
+vmap ,c<space> gc
+
+
+Plug 'SirVer/ultisnips'
+
+" Snippets are separated from the engine. Add this if you want them:
+" Plugin 'honza/vim-snippets'
+
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+
+
+Plug 'majutsushi/tagbar'
+map <F2> :TagbarToggle<CR>
+let g:tagbar_autofocus = 1
+let g:tagbar_sort = 0 "tagbar shows tags in order of they created in file
+" let g:tagbar_foldlevel = 0 "close tagbar folds by default
+
+Plug 'Align'
+Plug 'hynek/vim-python-pep8-indent'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive'
+Plug 'vcscommand.vim'
+
+Plug 'sjl/gundo.vim'
+let g:gundo_prefer_python3 = 1
+nmap <F9> :GundoToggle<CR>
+
+Plug 'davidhalter/jedi-vim'
+" let g:jedi#completions_enabled = 0
+let g:jedi#popup_on_dot = 0
+let g:jedi#popup_select_first = 0
+let g:jedi#show_call_signatures = 0
+" dont show preview in copletions
+let g:jedi#smart_auto_mappings = 0
+" disable autocomplete imports
+autocmd FileType python setlocal completeopt-=preview
+
+Plug 'neomake/neomake'
+let g:neomake_python_enabled_makers = ['python', 'flake8', 'pylint']
+autocmd! BufWritePost,BufEnter *.py Neomake
+let g:neomake_yaml_enabled_makers = ['yaml']
+
+let g:neomake_warning_sign = {
+  \ 'text': 'W',
+  \ 'texthl': 'WarningMsg',
+  \ }
+let g:neomake_error_sign = {
+  \ 'text': 'E',
+  \ 'texthl': 'ErrorMsg',
+  \ }
+
+
+call plug#end()
+
+" BASE
+
 scriptencoding utf-8
 set encoding=utf-8
+
+" Color scheme
+set t_Co=256
+color xoria256
 
 set exrc            " enable per-directory .vimrc files
 set secure          " disable unsafe commands in local .vimrc files
@@ -106,8 +242,11 @@ set imsearch=0
 highlight lCursor guifg=NONE guibg=Cyan
 
 " подсветка курсора
-autocmd InsertEnter * set cursorline
-autocmd InsertLeave * set nocursorline
+au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+au WinLeave * setlocal nocursorline
+
+autocmd InsertEnter * hi CursorLine term=underline cterm=underline
+autocmd InsertLeave * hi CursorLine term=none cterm=none
 
 " решает проблему с распознованием строк в python
 autocmd BufEnter * :syntax sync fromstart
@@ -121,10 +260,6 @@ autocmd BufEnter *.py match ExtraWhitespace /\s\+$/
 " удаление концевых пробелов, табов и досовского завершения строк
 autocmd BufRead *.py silent! %s/[\r \t]\+$//e
 autocmd BufEnter *.py :%s/[ \t\r]\+$//e
-
-" Color scheme
-set t_Co=256
-color xoria256
 
 " Enable syntax highlighting
 " You need to reload this file for the change to apply
@@ -175,6 +310,10 @@ set novb
 set hidden
 set bufhidden=wipe
 
+" Always show a gutter
+sign define dummy
+autocmd BufEnter * execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
+
 " These things start comment lines
 set comments=sl:/*,mb:\ *,ex:\ */,O://,b:#,:%,:XCOMM,n:>,fb:-
 
@@ -183,14 +322,6 @@ set mousehide
 
 " Edit the vimrc file
 nmap <silent> ,ev :e $MYVIMRC<CR>
-
-" filetypes
-" au BufNewFile,BufRead *.zpt set filetype=html
-" au BufNewFile,BufRead *.tin set filetype=tt
-" au BufRead,BufNewFile *.txt set filetype=text
-" autocmd FileType python set ft=python.django " For SnipMate
-" autocmd FileType html set ft=htmldjango.html " For SnipMate
-" autocmd FileType htmldjango set ft=htmldjango.html " For SnipMate
 
 " нечитаемые символы
 set list " Включить подсветку невидимых символов
@@ -217,129 +348,6 @@ vnoremap <tab> %
 
 " tnoremap <Esc> <C-\><C-n>
 
-"-----------------------------------------------------------------------------
-" PLUGINS
-"-----------------------------------------------------------------------------
-
-call plug#begin('~/.vim/plugged')
-
-Plug 'stephpy/vim-yaml' " fix vim bug (yaml syntax lags)
-
-Plug 'Raimondi/delimitMate'
-
-function! DoRemote(arg)
-  UpdateRemotePlugins
-endfunction
-Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
-let g:deoplete#enable_at_startup = 1
-Plug 'zchee/deoplete-jedi'
-
-Plug 'terryma/vim-multiple-cursors'
-Plug 'szw/vim-ctrlspace'
-let g:ctrlspace_use_tabline = 1
-
-Plug 'rking/ag.vim'
-
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
-let g:airline_theme='tomorrow'
-let g:airline_mode_map = {
-  \ '__' : '-',
-  \ 'n' : 'N',
-  \ 'i' : 'I',
-  \ 'R' : 'R',
-  \ 'c' : 'C',
-  \ 'v' : 'V',
-  \ 'V' : 'V',
-  \ '' : 'V',
-  \ 's' : 'S',
-  \ 'S' : 'S',
-  \ '' : 'S',
-  \ }
-
-Plug 'easymotion/vim-easymotion'
-
-Plug 'kien/ctrlp.vim'
-nmap <m-p> :CtrlPCurFile<cr>
-
-let g:ctrlp_switch_buffer = 0
-let g:ctrlp_max_height = 30
-set wildignore+=*.pyc
-set wildignore+=*_build/*
-set wildignore+=*/coverage/*
-set wildignore+=*/.git/*
-
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn|__pycache__)$',
-    \ 'file': '\v\.(exe|so|dll|pyc)$',
-\ }
-
-" Plug 'scrooloose/nerdtree'
-" " Toggle the NERD Tree on an off with F7
-" map <F7> <esc>:NERDTreeToggle<cr>
-" map <S-F7> <esc>:NERDTree<cr>
-" map <C-F7> <esc>:NERDTreeFind<cr>zz
-" " Show the bookmarks table on startup
-" let NERDTreeShowBookmarks=1
-" " Don't display these kinds of files
-" let NERDTreeIgnore=[ '\.pyc$', '\.swp$' ]
-"
-let g:netrw_list_hide= '.*\.swp$,.*\.pyc'
-map <F7> <esc>:Ex.<cr>
-map <F8> <esc>:Ex<cr>
-
-Plug 'tpope/vim-commentary'
-
-
-Plug 'SirVer/ultisnips'
-
-" Snippets are separated from the engine. Add this if you want them:
-" Plugin 'honza/vim-snippets'
-
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<c-b>"
-
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
-
-
-Plug 'majutsushi/tagbar'
-map <F2> :TagbarToggle<CR>
-let g:tagbar_autofocus = 1
-let g:tagbar_sort = 0 "tagbar shows tags in order of they created in file
-" let g:tagbar_foldlevel = 0 "close tagbar folds by default
-
-Plug 'Align'
-Plug 'hynek/vim-python-pep8-indent'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-fugitive'
-Plug 'vcscommand.vim'
-
-Plug 'sjl/gundo.vim'
-let g:gundo_prefer_python3 = 1
-nmap <F9> :GundoToggle<CR>
-
-Plug 'davidhalter/jedi-vim'
-let g:jedi#popup_on_dot = 0
-let g:jedi#popup_select_first = 0
-let g:jedi#show_call_signatures = 0
-" dont show preview in copletions
-let g:jedi#smart_auto_mappings = 0
-" disable autocomplete imports
-autocmd FileType python setlocal completeopt-=preview
-
-Plug 'scrooloose/syntastic'
-nmap <F5> :SyntasticCheck<cr>
-nmap <F15> :SyntasticCheck pylint<cr>
-let g:syntastic_python_checkers=['flake8', 'frosted']
-let g:syntastic_always_populate_loc_list=1 " автоматически обновлять список ошибок
-let g:syntastic_check_on_open=1
-
-call plug#end()
 
 if has('python')
 python3 << EOF
@@ -358,3 +366,5 @@ if 'VIRTUAL_ENV' in os.environ:
     )
 EOF
 endif
+
+autocmd FileType yaml setlocal ts=4 sts=4 shiftwidth=4 et
