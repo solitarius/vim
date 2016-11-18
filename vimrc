@@ -8,15 +8,30 @@ Plug 'stephpy/vim-yaml' " fix vim bug (yaml syntax lags)
 
 Plug 'Raimondi/delimitMate'
 
+Plug 'Shougo/denite.nvim'
+nmap ,q :<C-U>Denite buffer<cr>
+nmap ,f :<C-U>Denite file_rec<cr>
+
 function! DoRemote(arg)
   UpdateRemotePlugins
 endfunction
 Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
+" ctags problem
+" https://github.com/Shougo/deoplete.nvim/issues/309
+let deoplete#tag#cache_limit_size = 5000000
 imap <silent><expr> <c-n> deoplete#mappings#manual_complete()
 let g:deoplete#enable_at_startup = 1
 Plug 'zchee/deoplete-jedi'
 
 Plug 'terryma/vim-multiple-cursors'
+" from deoplete FAQ
+function g:Multiple_cursors_before()
+    let g:deoplete#disable_auto_complete = 1
+endfunction
+function g:Multiple_cursors_after()
+    let g:deoplete#disable_auto_complete = 0
+endfunction
+
 Plug 'szw/vim-ctrlspace'
 let g:ctrlspace_use_tabline = 1
 
@@ -113,7 +128,7 @@ autocmd FileType python setlocal completeopt-=preview
 
 Plug 'neomake/neomake'
 let g:neomake_python_enabled_makers = ['python', 'flake8', 'pylint']
-autocmd! BufWritePost,BufEnter *.py Neomake
+autocmd BufWritePost,BufEnter *.py Neomake
 let g:neomake_yaml_enabled_makers = ['yaml']
 
 let g:neomake_warning_sign = {
@@ -133,6 +148,13 @@ call plug#end()
 scriptencoding utf-8
 set encoding=utf-8
 
+" Show whitespace
+" MUST be inserted BEFORE the colorscheme command
+autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
+au InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufRead *.py match ExtraWhitespace /\s\+$/
+autocmd BufEnter *.py match ExtraWhitespace /\s\+$/
+
 " Color scheme
 set t_Co=256
 color xoria256
@@ -142,7 +164,7 @@ set secure          " disable unsafe commands in local .vimrc files
 " be iMproved
 set nocompatible
 " Automatic reloading of .vimrc
-autocmd! bufwritepost .vimrc source ~/.vimrc
+autocmd bufwritepost .vimrc source ~/.vimrc
 
 " Rebind <Leader> key
 " I like to have it here becuase it is easier to reach than the default and
@@ -250,12 +272,6 @@ autocmd InsertLeave * hi CursorLine term=none cterm=none
 
 " решает проблему с распознованием строк в python
 autocmd BufEnter * :syntax sync fromstart
-" Show whitespace
-" MUST be inserted BEFORE the colorscheme command
-autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
-au InsertLeave * match ExtraWhitespace /\s\+$/
-autocmd BufRead *.py match ExtraWhitespace /\s\+$/
-autocmd BufEnter *.py match ExtraWhitespace /\s\+$/
 
 " удаление концевых пробелов, табов и досовского завершения строк
 autocmd BufRead *.py silent! %s/[\r \t]\+$//e
@@ -269,6 +285,7 @@ syntax on
 
 " Showing line numbers and length
 set number  " show line numbers
+set relativenumber  " show line numbers
 set tw=0   " width of document (used by gd)
 set nowrap  " don't automatically wrap on load
 set fo-=t   " don't automatically wrap text when typing
@@ -337,7 +354,7 @@ set showcmd
 ab todo: TODO:
 
 " make scratch buffer
-command! -nargs=* -complete=shellcmd R new | setlocal buftype=nofile bufhidden=hide noswapfile | r !<args>
+command! -nargs=* -complete=shellcmd R new | setlocal buftype=nofile bufhidden=wipe noswapfile | r !<args>
 nmap <F4> :silent R python #<cr>
 nmap <F14> :silent R ./pytest #<cr>
 
