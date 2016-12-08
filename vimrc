@@ -8,9 +8,9 @@ Plug 'stephpy/vim-yaml' " fix vim bug (yaml syntax lags)
 
 Plug 'Raimondi/delimitMate'
 
-Plug 'Shougo/denite.nvim'
-nmap ,q :<C-U>Denite buffer<cr>
-nmap ,f :<C-U>Denite file_rec<cr>
+" Plug 'Shougo/denite.nvim'
+Plug 'jlanzarotta/bufexplorer'
+let g:bufExplorerShowRelativePath=1  " Show relative paths.
 
 function! DoRemote(arg)
   UpdateRemotePlugins
@@ -73,6 +73,7 @@ let g:ctrlp_custom_ignore = {
 \ }
 
 Plug 'scrooloose/nerdtree'
+map <F7> <esc>:Explore<cr>
 map <F8> <esc>:NERDTreeToggle<cr>
 map <F18> <esc>:NERDTreeFind<cr>zz
 " Show the bookmarks table on startup
