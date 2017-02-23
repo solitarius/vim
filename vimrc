@@ -11,6 +11,7 @@ Plug 'Raimondi/delimitMate'
 " Plug 'Shougo/denite.nvim'
 Plug 'jlanzarotta/bufexplorer'
 let g:bufExplorerShowRelativePath=1  " Show relative paths.
+map ,q :BufExplorer<CR>
 
 function! DoRemote(arg)
   UpdateRemotePlugins
@@ -73,7 +74,7 @@ let g:ctrlp_custom_ignore = {
 \ }
 
 Plug 'scrooloose/nerdtree'
-map <F7> <esc>:Explore<cr>
+map <F7> <esc>:edit .<cr>
 map <F8> <esc>:NERDTreeToggle<cr>
 map <F18> <esc>:NERDTreeFind<cr>zz
 " Show the bookmarks table on startup
@@ -84,6 +85,8 @@ let NERDTreeQuitOnOpen=1
 Plug 'tpope/vim-commentary'
 nmap ,c<space> gcl
 vmap ,c<space> gc
+
+autocmd FileType sql setlocal commentstring=--\ %s
 
 
 Plug 'SirVer/ultisnips'
@@ -112,18 +115,20 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
 
+autocmd QuickFixCmdPost *grep* cwindow
+
 set previewheight=30
 " fugitive git bindings
 " nnoremap <space>ga :Git add %:p<CR><CR>
-nnoremap <space>gs :Gstatus<CR>
+nnoremap ,gs :Gstatus<CR>
 " nnoremap <space>gc :Gcommit -v -q<CR>
 " nnoremap <space>gt :Gcommit -v -q %:p<CR>
-nnoremap <space>gd :Gdiff<CR>
+nnoremap ,gd :Gdiff<CR>
 " nnoremap <space>ge :Gedit<CR>
 " nnoremap <space>gr :Gread<CR>
 " nnoremap <space>gw :Gwrite<CR><CR>
 " nnoremap <space>gl :silent! Glog<CR>:bot copen<CR>
-nnoremap <space>gp :Ggrep<Space>
+nnoremap ,gg :Ggrep<Space>
 " nnoremap <space>gm :Gmove<Space>
 " nnoremap <space>gb :Git branch<Space>
 " nnoremap <space>go :Git checkout<Space>
@@ -152,6 +157,7 @@ autocmd FileType python setlocal completeopt-=preview
 
 Plug 'neomake/neomake'
 let g:neomake_python_enabled_makers = ['python', 'flake8', 'pylint']
+" let g:neomake_python_pylint_args = ['--rcfile=/home/solitarius/projects/pylintrc']
 autocmd BufWritePost,BufEnter *.py Neomake
 let g:neomake_yaml_enabled_makers = ['yaml']
 
@@ -178,6 +184,8 @@ autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
 au InsertLeave * match ExtraWhitespace /\s\+$/
 autocmd BufRead *.py match ExtraWhitespace /\s\+$/
 autocmd BufEnter *.py match ExtraWhitespace /\s\+$/
+
+command RemoveTrail %s/\s\+$//g
 
 " Color scheme
 set t_Co=256
@@ -313,7 +321,7 @@ set relativenumber  " show line numbers
 set tw=0   " width of document (used by gd)
 set nowrap  " don't automatically wrap on load
 set fo-=t   " don't automatically wrap text when typing
-set colorcolumn=80
+set colorcolumn=100
 " Подсветка для столбца.. colorcolumn
 hi ColorColumn ctermbg=239 guibg=#333333
 
@@ -378,7 +386,7 @@ set showcmd
 ab todo: TODO:
 
 " make scratch buffer
-command! -nargs=* -complete=shellcmd R new | setlocal buftype=nofile bufhidden=wipe noswapfile | r !<args>
+command! -nargs=* -complete=shellcmd R new | setlocal buftype=nofile bufhidden=wipe noswapfile | nnoremap <script> <silent> <nowait> <buffer> q :q<CR> | r !<args>
 nmap <F4> :silent R python #<cr>
 nmap <F14> :silent R ./pytest #<cr>
 

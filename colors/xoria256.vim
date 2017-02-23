@@ -83,6 +83,9 @@ hi Todo         ctermfg=0   guifg=#000000 ctermbg=184 guibg=#dfdf00
 hi Type         ctermfg=146 guifg=#afafdf                           cterm=none gui=none
 hi Underlined   ctermfg=39  guifg=#00afff                           cterm=underline gui=underline
 
+hi NeomakeWarning ctermfg=184
+hi NeomakeError ctermfg=red
+
 "" Special
 """ .diff
 hi diffAdded    ctermfg=150 guifg=#afdf87
